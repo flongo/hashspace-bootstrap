@@ -1,0 +1,15 @@
+var alertCtrl = require("./alert");
+var alertController = alertCtrl.AlertController;
+
+{export template alert using ctrl:alertController}
+	{if !ctrl._close}
+		<div class="{'alert', ctrl.typeClass, ctrl.fadeClass}" role="alert">
+			{if ctrl.closebutton}
+	        	<button type="button" onclick="{ctrl.onclose()}" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	        {/if}
+	        <#ctrl.content />           
+	    </div>
+	{/if}
+    
+{/template}
+
