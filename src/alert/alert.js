@@ -2,47 +2,55 @@
 var klass = require("hsp/klass");
 
 exports.AlertController = new klass({
-    attributes : {        
+    attributes : {
         "closebutton": {type: "boolean", defaultValue:true},
         "fade": {type: "boolean", defaultValue: true},
-        "type": {type: "string", defaultValue: "danger"},    
+        "type": {type: "string", defaultValue: "danger"},
         "content" : {type: "template", defaultContent: true},
-        "close" : {type: "boolean", defaultValue:false, binding : "2-way"}, // used to bind the onclose method 
+        "close" : {type: "boolean", defaultValue:false, binding : "2-way"}, // used to bind the onclose method
         "onclosestart": { type: "callback" },
-        "oncloseend": { type: "callback" }        
-    },    
-    $init : function () {       
+        "oncloseend": { type: "callback" }
+    },
+    $init : function () {
         this.typeClass = 'alert-' + this.type;
-        this.fadeClass = (this.fade) ? 'fade in' : '';       
-    },  
-    onCloseChange : function () {        
+        this.fadeClass = (this.fade) ? 'fade in' : '';
+        this._close = this.close;
+    },
+    $refresh: function () {},
+
+    onCloseChange : function () {
         if (this.close) {
-            this.onclose();
+            this._onclose();
         } else {
             this._close = false;
+            if (this.fade) {
+            this.fadeClass = 'fade';
+            var that = this;
+            setTimeout(function () {
+            	that.fadeClass = 'fade in';}, 30);
+            }
         }
     },
-    onclose : function () {       
-        this.close = true;         
-        if (this.onclosestart) {            
-            this.onclosestart();
-        }      
-        var transitionEnd = getTransitionEnd();        
-        if (transitionEnd && this.fade) {
-            this.fadeClass = 'fade out';               
-            this.$getElement(0).addEventListener(transitionEnd, this.onTransitionEnd.bind(this), false);         
-        } else {
-            this._closeEnd(); 
-        }           
+    onclose : function () {
+            this.close = true;
     },
-    onTransitionEnd : function () {        
-        this._closeEnd(); 
+
+    _onclose : function () {
+        this.onclosestart();
+        var transitionEnd = getTransitionEnd();
+        if (transitionEnd && this.fade) {
+            this.$getElement(0).addEventListener(transitionEnd, this.onTransitionEnd.bind(this), false);
+            this.fadeClass = 'fade';
+        } else {
+            this._closeEnd();
+        }
+    },
+    onTransitionEnd : function () {
+        this._closeEnd();
     },
     _closeEnd : function () {
         this._close = true;
-        if (this.oncloseend) {
-            this.oncloseend();
-        }  
+        this.oncloseend();
     }
 
 });
